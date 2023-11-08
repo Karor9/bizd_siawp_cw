@@ -1,0 +1,243 @@
+--CREATE OR REPLACE FUNCTION getJobName(id IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35);
+--    check_is_present number := 0;
+--    E_NULL_ID Exception;
+--BEGIN
+--    SELECT COUNT(*) INTO check_is_present
+--    FROM jobs
+--    WHERE job_id = id;
+--
+--
+--    IF check_is_present <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--
+--    SELECT job_title into r
+--    FROM jobs
+--    WHERE job_id = id;
+--    RETURN r;
+--
+--    exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--
+--
+--END;
+--
+--SELECT
+--    getJobName('AD_VP')
+--FROM
+--    dual;
+--CREATE OR REPLACE FUNCTION getYearlySalary(id IN number)
+--RETURN number AS
+--    r number;
+--    f_salary number;
+--    f_cm_pact number;
+--    check_is_present number := 0;
+--    E_NULL_ID Exception;
+--BEGIN
+--    SELECT COUNT(*) INTO check_is_present
+--    FROM employees
+--    WHERE employee_id = id;
+--    IF check_is_present <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--    SELECT salary, COMMISSION_PCT
+--    INTO  f_salary, f_cm_pact
+--    FROM employees
+--    WHERE employee_id = id;
+--    r := (f_salary * 12);
+--    if f_cm_pact IS NOT NULL THEN
+--        r := r + (f_salary * f_cm_pact);
+--    END IF;
+--    return r;
+--    exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--END;
+
+--SELECT
+--    getYearlySalary(1020)
+--FROM
+--    dual;
+--CREATE OR REPLACE FUNCTION formatPhoneNumber(phoneNumber IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35) := '(';
+--BEGIN
+--    r := CONCAT(r, substr(phoneNumber, 0, 3));
+--    r := CONCAT(r, ')');
+--    r := CONCAT(r, substr(phoneNumber, 4));
+--    return r;
+--END;
+
+
+--SELECT
+--    formatPhoneNumber('011.44.1644.429265')
+--FROM
+--    dual;
+
+--CREATE OR REPLACE FUNCTION reformatString(i_str IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35);
+--BEGIN
+--    r := CONCAT(r, UPPER(substr(i_str, 0, 1)));
+--    r := CONCAT(r, substr(i_str, 1, LENGTH(i_str) - 1));
+--    r := CONCAT(r, UPPER(substr(i_str, -1)));
+--    return r;
+--END;
+--
+--SELECT
+--    reformatString('abcdefghijkl')
+--FROM
+--    dual;
+
+--CREATE OR REPLACE FUNCTION reformatPESEL(pesel IN varchar2)
+--RETURN date AS
+--    r date;
+--    birth_date varchar(10);
+--    m_nf varchar2(2);
+--    minus_month varchar(2);
+--    y varchar2(4);
+--    m varchar2(2);
+--    d varchar2(2);
+--BEGIN
+--    m_nf := substr(pesel, 3, 1);
+--    CASE m_nf
+--        when '0' then
+--            y := '19';
+--            minus_month := '0';
+--        when '1' then
+--            y := '19';
+--            minus_month := '0';
+--        when '2' then
+--            y := '20';
+--            minus_month := '20';
+--        when '3' then
+--            y := '20';
+--            minus_month := '20';
+--        when '4' then
+--            y := '21';
+--            minus_month := '40';
+--        when '5' then
+--            y := '21';
+--            minus_month := '40';
+--        when '6' then
+--            y := '22';
+--            minus_month := '60';
+--        when '7' then
+--            y := '22';
+--            minus_month := '60';
+--        else
+--            y := '18';
+--            minus_month := '80';
+--    end case;
+--    y := CONCAT(y, substr(pesel, 1, 2));
+--    m := to_char(to_number(substr(pesel, 3, 2)) - to_number(minus_month));
+--    d := substr(pesel, 5, 2);
+--    
+--    birth_date := concat(y, '-');
+--    birth_date := concat(birth_date, m);
+--    birth_date := concat(birth_date, '-');
+--    birth_date := concat(birth_date, d);
+--    
+--    r := to_date(birth_date, 'YYYY-MM-DD');
+--    return r;
+--    
+--END;
+--
+--SELECT
+--    reformatPESEL('22222222222')
+--FROM
+--    dual;
+
+--CREATE OR REPLACE FUNCTION add_numbers(country IN varchar2)
+--RETURN varchar2 as
+--    r varchar2(150);
+--    r_depart number := 0;
+--    r_people number := 0;
+--    f_depart_id number;
+--    f_sum_empl number;
+--    f_country_id char(2);
+--    E_NULL_COUNTRY Exception;
+--    f_check_exp number := 0;
+--BEGIN
+--    select count(*) into f_check_exp
+--    FROM countries
+--    WHERE country_name = country;
+--    
+--    if f_check_exp <= 0 THEN
+--        raise E_NULL_COUNTRY;
+--    END IF;
+--    
+--    SELECT country_id into f_country_id
+--    from countries
+--    where country_name = country;
+--    
+--    FOR rec IN (
+--        SELECT location_id AS f_l_id
+--        FROM LOCATIONS
+--        where country_id = f_country_id
+--        )
+--        
+--    LOOP
+--        FOR depart IN (
+--        SELECT department_id as f_dp_id
+--        FROM departments
+--        where location_id = rec.f_l_id)
+--        
+--        LOOP
+--            r_depart := r_depart + 1;
+--            
+--            SELECT count(*) INTO f_sum_empl
+--            FROM employees
+--            WHERE department_id = depart.f_dp_id;
+--            
+--            r_people := r_people + f_sum_empl;
+--        END LOOP;
+--    END LOOP;
+--    
+--    r := concat('Departments: ', r_depart);
+--    r := concat(r, ' Employees: ');
+--    r := concat(r, r_people);
+--    return r;
+--    EXCEPTION
+--    WHEN E_NULL_COUNTRY THEN
+--        raise_application_error(-20001, 'Nie ma takiego kraju w bazie');
+--END;
+--
+--SELECT
+--    add_numbers('United Kingdom')
+--FROM
+--    dual;
+
+--CREATE TABLE archiwum_departamentow AS SELECT * FROM gersk.DEPARTMENTS;
+--DELETE FROM  archiwum_departamentow;
+
+--CREATE OR REPLACE TRIGGER departments_DELETE
+--BEFORE DELETE ON departments
+--FOR EACH ROW
+--BEGIN
+--    INSERT INTO archiwum_departamentow (department_id, department_name, manager_id, location_id)
+--    VALUES (:old.department_id, :old.department_name, :old.manager_id, :old.location_id);
+--END;
+--
+--
+--INSERT INTO departments (department_id, department_name, location_id)
+--    VALUES (1111, 'Test depart', 1400);
+--    
+--DELETE FROM departments
+--WHERE department_id = 1111;
+
+--CREATE OR REPLACE TRIGGER employee_UI
+--BEFORE UPDATE OR INSERT ON employees
+--FOR EACH ROW
+--BEGIN
+--    IF :new.salary > 26000 or :new.salary < 2000 THEN
+--        raise_application_error(-20001, 'O ty z³odzieju, zarabiaæ mu siê zachcia³o');
+--    END IF;
+--END;
+--
+--UPDATE employees
+--SET salary = 500
+--WHERE employee_id = 209;
