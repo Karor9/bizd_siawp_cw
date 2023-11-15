@@ -282,4 +282,348 @@
 --    :new.min_salary := :old.min_salary;
 --END;
 
-CREATE OR REPLACE PACKAGE paczka_wszystko AS
+--CREATE OR REPLACE PACKAGE paczka_wszystko AS
+--FUNCTION getJobName(id IN varchar2) RETURN VARCHAR2;
+--FUNCTION getYearlySalary(id IN number) RETURN NUMBER;
+--FUNCTION formatPhoneNumber(phoneNumber IN varchar2) RETURN VARCHAR2;
+--FUNCTION reformatString(i_str IN varchar2) RETURN VARCHAR2;
+--FUNCTION reformatPESEL(pesel IN varchar2) RETURN DATE;
+--FUNCTION add_numbers(country IN varchar2) RETURN VARCHAR2;
+--PROCEDURE AddJob(p_job_id IN VARCHAR2,p_job_name IN VARCHAR2);
+--PROCEDURE ChangeTitleJob(p_job_id IN VARCHAR2,p_job_name IN VARCHAR2);
+--PROCEDURE DeleteJob(p_job_id IN VARCHAR2);
+--PROCEDURE GetNameAndSalary(p_employee_id IN number);
+--PROCEDURE AddEmployee(p_first_name IN VARCHAR2,p_last_name IN VARCHAR2,p_salary in number);
+--END paczka_wszystko;
+--
+--CREATE OR REPLACE PACKAGE BODY paczka_wszystko AS
+--FUNCTION getJobName(id IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35);
+--    check_is_present number := 0;
+--    E_NULL_ID Exception;
+--BEGIN
+--    SELECT COUNT(*) INTO check_is_present
+--    FROM jobs
+--    WHERE job_id = id;
+--    IF check_is_present <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--    SELECT job_title into r
+--    FROM jobs
+--    WHERE job_id = id;
+--    RETURN r;
+--    exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--END getJobName;
+--
+--FUNCTION getYearlySalary(id IN number)
+--RETURN number AS
+--    r number;
+--    f_salary number;
+--    f_cm_pact number;
+--    check_is_present number := 0;
+--    E_NULL_ID Exception;
+--BEGIN
+--    SELECT COUNT(*) INTO check_is_present
+--    FROM employees
+--    WHERE employee_id = id;
+--    IF check_is_present <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--    SELECT salary, COMMISSION_PCT
+--    INTO  f_salary, f_cm_pact
+--    FROM employees
+--    WHERE employee_id = id;
+--    r := (f_salary * 12);
+--    if f_cm_pact IS NOT NULL THEN
+--        r := r + (f_salary * f_cm_pact);
+--    END IF;
+--    return r;
+--    exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--END getYearlySalary;
+--
+--FUNCTION formatPhoneNumber(phoneNumber IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35) := '(';
+--BEGIN
+--    r := CONCAT(r, substr(phoneNumber, 0, 3));
+--    r := CONCAT(r, ')');
+--    r := CONCAT(r, substr(phoneNumber, 4));
+--    return r;
+--END formatPhoneNumber;
+--
+--FUNCTION reformatString(i_str IN varchar2)
+--RETURN varchar2 AS
+--    r varchar2(35);
+--BEGIN
+--    r := CONCAT(r, UPPER(substr(i_str, 0, 1)));
+--    r := CONCAT(r, substr(i_str, 1, LENGTH(i_str) - 1));
+--    r := CONCAT(r, UPPER(substr(i_str, -1)));
+--    return r;
+--END reformatString;
+--
+--FUNCTION reformatPESEL(pesel IN varchar2)
+--RETURN date AS
+--    r date;
+--    birth_date varchar(10);
+--    m_nf varchar2(2);
+--    minus_month varchar(2);
+--    y varchar2(4);
+--    m varchar2(2);
+--    d varchar2(2);
+--BEGIN
+--    m_nf := substr(pesel, 3, 1);
+--    CASE m_nf
+--        when '0' then
+--            y := '19';
+--            minus_month := '0';
+--        when '1' then
+--            y := '19';
+--            minus_month := '0';
+--        when '2' then
+--            y := '20';
+--            minus_month := '20';
+--        when '3' then
+--            y := '20';
+--            minus_month := '20';
+--        when '4' then
+--            y := '21';
+--            minus_month := '40';
+--        when '5' then
+--            y := '21';
+--            minus_month := '40';
+--        when '6' then
+--            y := '22';
+--            minus_month := '60';
+--        when '7' then
+--            y := '22';
+--            minus_month := '60';
+--        else
+--            y := '18';
+--            minus_month := '80';
+--    end case;
+--    y := CONCAT(y, substr(pesel, 1, 2));
+--    m := to_char(to_number(substr(pesel, 3, 2)) - to_number(minus_month));
+--    d := substr(pesel, 5, 2);
+--    
+--    birth_date := concat(y, '-');
+--    birth_date := concat(birth_date, m);
+--    birth_date := concat(birth_date, '-');
+--    birth_date := concat(birth_date, d);
+--    
+--    r := to_date(birth_date, 'YYYY-MM-DD');
+--    return r;
+--    
+--END reformatPESEL;
+--
+--FUNCTION add_numbers(country IN varchar2)
+--RETURN varchar2 as
+--    r varchar2(150);
+--    r_depart number := 0;
+--    r_people number := 0;
+--    f_depart_id number;
+--    f_sum_empl number;
+--    f_country_id char(2);
+--    E_NULL_COUNTRY Exception;
+--    f_check_exp number := 0;
+--BEGIN
+--    select count(*) into f_check_exp
+--    FROM countries
+--    WHERE country_name = country;
+--    
+--    if f_check_exp <= 0 THEN
+--        raise E_NULL_COUNTRY;
+--    END IF;
+--    
+--    SELECT country_id into f_country_id
+--    from countries
+--    where country_name = country;
+--    
+--    FOR rec IN (
+--        SELECT location_id AS f_l_id
+--        FROM LOCATIONS
+--        where country_id = f_country_id
+--        )
+--        
+--    LOOP
+--        FOR depart IN (
+--        SELECT department_id as f_dp_id
+--        FROM departments
+--        where location_id = rec.f_l_id)
+--        
+--        LOOP
+--            r_depart := r_depart + 1;
+--            
+--            SELECT count(*) INTO f_sum_empl
+--            FROM employees
+--            WHERE department_id = depart.f_dp_id;
+--            
+--            r_people := r_people + f_sum_empl;
+--        END LOOP;
+--    END LOOP;
+--    
+--    r := concat('Departments: ', r_depart);
+--    r := concat(r, ' Employees: ');
+--    r := concat(r, r_people);
+--    return r;
+--    EXCEPTION
+--    WHEN E_NULL_COUNTRY THEN
+--        raise_application_error(-20001, 'Nie ma takiego kraju w bazie');
+--END add_numbers;
+--
+--PROCEDURE AddJob(
+--    p_job_id IN VARCHAR2,
+--    p_job_name IN VARCHAR2)
+--    AS
+--BEGIN
+--    INSERT INTO jobs(job_id, job_title) VALUES(p_job_id, p_job_name);
+--EXCEPTION
+--    WHEN DUP_VAL_ON_INDEX THEN
+--      raise_application_error (-20001,'Istnieje ju? praca z takim id');
+--    WHEN OTHERS THEN
+--        raise_application_error (-20002,'Niepoprawnie u?yta procedura');
+--END AddJob;
+--
+--PROCEDURE ChangeTitleJob(
+--    p_job_id IN VARCHAR2,
+--    p_job_name IN VARCHAR2)
+--is
+--    l_numb number;
+--    E_NULL_ID Exception;
+--BEGIN
+--    SELECT COUNT(*) INTO l_numb
+--    FROM jobs
+--    WHERE job_id = p_job_id;
+--    
+--    IF l_numb <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--
+--    UPDATE jobs
+--    SET job_title = p_job_name
+--    WHERE job_id = p_job_id;
+--exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--    WHEN OTHERS THEN
+--        raise_application_error (-20002,'Niepoprawnie u?yta procedura');
+--END ChangeTitleJob;
+--
+--PROCEDURE DeleteJob(
+--    P_JOB_ID in varchar2)
+--is
+--    L_NUMB number;
+--    E_NULL_ID exception;
+--begin
+--    select count(*) into L_NUMB
+--    from JOBS
+--    where JOB_ID = P_JOB_ID;
+--    
+--    if L_NUMB <= 0 then
+--        raise E_NULL_ID;
+--    end if;
+--
+--    delete from JOBS
+--    where JOB_ID = P_JOB_ID;
+--exception
+--    when E_NULL_ID then
+--        RAISE_APPLICATION_ERROR (-20001,'Nie istnieje takie ID');
+--    when others then
+--        RAISE_APPLICATION_ERROR (-20002,'Niepoprawnie u?yta procedura');
+--end DELETEJOB;
+--
+--PROCEDURE GetNameAndSalary(
+--    p_employee_id IN number)
+--is
+--    l_numb number;
+--    E_NULL_ID Exception;
+--    p_result varchar2(50);
+--BEGIN
+--    SELECT COUNT(*) INTO l_numb
+--    FROM EMPLOYEES
+--    WHERE employee_id = p_employee_id;
+--    
+--    IF l_numb <= 0 THEN
+--        raise E_NULL_ID;
+--    END IF;
+--    
+--    SELECT CONCAT(CONCAT(last_name, ' ') ,salary) into p_result
+--    FROM EMPLOYEES
+--    WHERE employee_id = p_employee_id;
+--    dbms_output.put_line(p_result);
+--exception
+--    WHEN E_NULL_ID THEN
+--        raise_application_error (-20001,'Nie istnieje takie ID');
+--    WHEN OTHERS THEN
+--        raise_application_error (-20002,'Niepoprawnie u?yta procedura');
+--END GetNameAndSalary;
+--
+--PROCEDURE AddEmployee(
+--    p_first_name IN VARCHAR2,
+--    p_last_name IN VARCHAR2,
+--    p_salary in number)
+--IS
+--    E_BIG_SALARY Exception;
+--    l_next_id number;
+--    l_mail varchar2(50);
+--BEGIN
+--    IF p_salary > 20000 THEN
+--        raise E_BIG_SALARY;
+--    END IF;
+--    
+--    l_mail := CONCAT(UPPER(SUBSTR(p_first_name, 0, 1)), UPPER(p_last_name));
+--    
+--    INSERT INTO EMPLOYEES(employee_id, first_name, last_name, email, salary, job_id, hire_date) 
+--    VALUES(seq_next_id.nextval, p_first_name, p_last_name, l_mail, p_salary, 'MK_MAN', CURRENT_DATE);
+--EXCEPTION
+--    WHEN DUP_VAL_ON_INDEX THEN
+--      raise_application_error (-20001,'Istnieje ju? praca z takim id');
+--    WHEN E_BIG_SALARY THEN
+--      raise_application_error (-20000,'Za du?e wynagrodzenie');
+--END AddEmployee;
+--
+--END paczka_wszystko;
+
+CREATE OR REPLACE PACKAGE region_pkg AS
+  PROCEDURE create_region(p_region_id IN NUMBER, p_region_name IN VARCHAR2);
+
+  FUNCTION get_region(p_region_id IN NUMBER) RETURN VARCHAR2;
+  
+  PROCEDURE update_region(p_region_id IN NUMBER, p_new_region_name IN VARCHAR2);
+
+  PROCEDURE delete_region(p_region_id IN NUMBER);
+END region_pkg;
+
+
+CREATE OR REPLACE PACKAGE BODY region_pkg AS
+  PROCEDURE create_region(p_region_id IN NUMBER, p_region_name IN VARCHAR2) IS
+  BEGIN
+    INSERT INTO REGIONS (region_id, region_name) VALUES (p_region_id, p_region_name);
+    COMMIT;
+  END create_region;
+
+  FUNCTION get_region(p_region_id IN NUMBER) RETURN VARCHAR2 IS
+    v_region_name VARCHAR2(50);
+  BEGIN
+    SELECT region_name INTO v_region_name FROM REGIONS WHERE region_id = p_region_id;
+    RETURN v_region_name;
+  END get_region;
+
+  PROCEDURE update_region(p_region_id IN NUMBER, p_new_region_name IN VARCHAR2) IS
+  BEGIN
+    UPDATE REGIONS SET region_name = p_new_region_name WHERE region_id = p_region_id;
+    COMMIT;
+  END update_region;
+
+  PROCEDURE delete_region(p_region_id IN NUMBER) IS
+  BEGIN
+    DELETE FROM REGIONS WHERE region_id = p_region_id;
+    COMMIT;
+  END delete_region;
+END region_pkg;
+
+
