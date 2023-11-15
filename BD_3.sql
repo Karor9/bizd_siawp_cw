@@ -81,7 +81,31 @@
 --    END LOOP;
 --END;
 
---z6 TODO
+DECLARE
+    CURSOR c_depart IS
+        SELECT * FROM departments;
+    
+    TYPE type_department IS TABLE OF departments%ROWTYPE INDEX BY binary_integer;
+    departs_ids type_department;
+    
+    counter integer := 0;
+BEGIN
+    FOR x IN c_depart LOOP
+        counter := counter + 10;
+        departs_ids(counter) := x;
+        
+        -- Displaying information for each department
+        dbms_output.put_line('Department ID: ' || departs_ids(counter).department_id);
+        dbms_output.put_line('Department Name: ' || departs_ids(counter).department_name);
+        dbms_output.put_line('Manager ID: ' || departs_ids(counter).manager_id);
+        dbms_output.put_line('Location ID: ' || departs_ids(counter).location_id);
+        dbms_output.put_line('--------------------------------------');
+        
+        IF counter >= 100 THEN
+            exit;
+        END IF;
+    END LOOP;
+END;
 
 --DECLARE
 --    CURSOR c_employee is
