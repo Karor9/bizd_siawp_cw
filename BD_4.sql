@@ -232,12 +232,54 @@
 --CREATE OR REPLACE TRIGGER employee_UI
 --BEFORE UPDATE OR INSERT ON employees
 --FOR EACH ROW
+--DECLARE
+--    t_id_next INT := 0;
 --BEGIN
 --    IF :new.salary > 26000 or :new.salary < 2000 THEN
---        raise_application_error(-20001, 'O ty z³odzieju, zarabiaæ mu siê zachcia³o');
+--        SELECT count(*) INTO t_id_next FROM zlodziej;
+--        INSERT INTO zlodziej
+--        VALUES (t_id_next, USER, SYSTIMESTAMP);
 --    END IF;
 --END;
 --
 --UPDATE employees
 --SET salary = 500
 --WHERE employee_id = 209;
+--
+--CREATE TABLE zlodziej(id INT,
+--    z_user varchar2(100),
+--    czas_zmiany TIMESTAMP
+--);
+
+--CREATE SEQUENCE employees_seq
+--  START WITH 248
+--  INCREMENT BY 1
+--  NOCACHE
+--  NOCYCLE;
+--
+--CREATE OR REPLACE TRIGGER employee_ai
+--BEFORE INSERT ON employees
+--FOR EACH ROW
+--BEGIN
+--    SELECT employees_seq.NEXTVAL INTO :new.employee_id FROM dual;
+--END;
+--
+--INSERT INTO EMPLOYEES(first_name, last_name, email, salary, job_id, hire_date) 
+--    VALUES('Jaros³aw', 'Jezioriñski', 'jjezioriñski', 3000, 'MK_MAN', CURRENT_DATE);
+
+--CREATE OR REPLACE TRIGGER deny_everything
+--BEFORE INSERT OR DELETE OR UPDATE ON job_grades
+--FOR EACH ROW
+--BEGIN
+--    raise_application_error(-20001, 'Zakaz jakichkolwiek dzia³añ na tabeli. O wiecej informacji spytaj administratora');
+--END;
+
+--CREATE OR REPLACE TRIGGER dont_change_salary
+--BEFORE UPDATE ON jobs
+--FOR EACH ROW
+--BEGIN
+--    :new.max_salary := :old.max_salary;
+--    :new.min_salary := :old.min_salary;
+--END;
+
+CREATE OR REPLACE PACKAGE paczka_wszystko AS
