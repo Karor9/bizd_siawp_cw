@@ -17,6 +17,4 @@ arr.sort()
 median = statistics.median(arr)
 quantiles = statistics.quantiles(arr)
 s = statistics.stdev(arr)
-v = statistics.variance(arr)
-print(s, v)
-print(s**2)
+v = statistics.variance(arr) #kwadrat odchylenia standardowego
