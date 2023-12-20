@@ -19,3 +19,5 @@ stats = describe(data)
 print('Teoria {} (Średnia), {} (Odchylenie)'.format(avg, std_dev))
 print('Praktyka {} (Średnia), {} (Odchylenie)'.format(stats.mean, np.sqrt(stats.variance)))
 
+#W zależności od próby, zwiększenie liczby próbek zwiększa dokładność wyliczeń.
+

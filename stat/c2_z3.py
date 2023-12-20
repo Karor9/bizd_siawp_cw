@@ -27,4 +27,4 @@ kur_pois = sts.kurtosis(poisson)
 
 ske_bern = sts.skew(bernoulli)
 ske_bino = sts.skew(binomial_trials)
-ske_pois = sts.skew(poisson)
+ske_pois = sts.skew(poisson)        
